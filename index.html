@@ -1,13 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-  <title>Red Team CVE Simulated Trigger</title>
+  <meta charset="UTF-8" />
+  <title>Simulation Type Confusion CVE-2025-6554</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; }
+    pre { background: #f4f4f4; padding: 1em; border-radius: 5px; }
+  </style>
 </head>
 <body>
-  <h1>💥 CVE-2025-6554 Simulation</h1>
-  <p>Ce site simule une exploitation V8 post-patch.</p>
-  <button onclick="simulateExploit()">Simuler l'exploit</button>
+  <h1>Simulation Type Confusion (CVE-2025-6554)</h1>
+  <p>Voici la simulation de la fonction confuseMe :</p>
+  <button id="btnFalse">Exécuter confuseMe(false)</button>
+  <button id="btnTrue">Exécuter confuseMe(true)</button>
 
-  <script src="exploit.js"></script>
+  <h2>Résultat :</h2>
+  <pre id="output"></pre>
+
+  <script>
+    function confuseMe(x) {
+      let arr = [1.1, 1.2, 1.3];
+      if (x) {
+        arr[0] = {};
+      }
+      return arr[0];
+    }
+
+    const output = document.getElementById('output');
+
+    document.getElementById('btnFalse').onclick = () => {
+      const result = confuseMe(false);
+      output.textContent = `confuseMe(false) → ${result}`;
+    };
+
+    document.getElementById('btnTrue').onclick = () => {
+      const result = confuseMe(true);
+      output.textContent = `confuseMe(true) → ${JSON.stringify(result)}`;
+    };
+  </script>
 </body>
 </html>
